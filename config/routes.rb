@@ -39,6 +39,9 @@ Rails.application.routes.draw do
 
   get 'static/:action' => 'static', as: :static
 
+  get 'services/manifests/:id'  => 'services_api#manifests', as: :services_manifests
+  get 'services/annotations/:id' => 'services_api#annotations', as: :services_annotations
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

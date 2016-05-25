@@ -1,7 +1,7 @@
 namespace :fishrappr do
   desc "Reindex issues"
-  task reindex_issues: :environment do    
-    IssueIndexer.run
+  task :reindex_issues, [:id] => :environment do |t, args|
+    IssueIndexer.run(args.id)
   end
 
   desc "Reindex issues (old)"

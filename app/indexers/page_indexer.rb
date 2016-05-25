@@ -9,6 +9,8 @@ class PageIndexer
   def generate_solr_doc(issue_doc)
 
     full_text = get_full_text(issue_doc, @page.text_link)
+    coordinates_data = get_coordinates_data(issue_doc, @page.coordinates_link)
+    image_info = get_image_info(issue_doc, @page.img_link)
     page_id = "#{issue_doc[:id]}-#{@page.sequence}"
     solr_doc = { 
       id: page_id, # @page.id,
@@ -16,7 +18,10 @@ class PageIndexer
       sequence: @page.sequence,
       text_link: @page.text_link, 
       img_link: @page.img_link, 
+      coordinates_data_ssm: coordinates_data,
       full_text_txt:full_text,
+      image_height_ti: image_info["height"],
+      image_width_ti: image_info["width"],
       prev_page_link: nil,
       next_page_link: nil,
       next_page_sequence_label: nil,
@@ -65,9 +70,22 @@ class PageIndexer
 
   def get_full_text(issue_doc, text_link)
     File.read(Rails.root.join(
-      Rails.configuration.text_root, 
-      "#{issue_doc[:ht_namespace]}.#{issue_doc[:ht_barcode]}", 
+      Rails.configuration.sdrdataroot, 
+      "#{issue_doc[:ht_namespace]}/#{issue_doc[:ht_barcode]}", 
       text_link+'.txt'))
+  end
+
+  def get_coordinates_data(issue_doc, coordinates_link)
+    File.read(Rails.root.join(
+      Rails.configuration.sdrdataroot, 
+      "#{issue_doc[:ht_namespace]}/#{issue_doc[:ht_barcode]}", 
+      coordinates_link+'.js'))
+  end
+
+  def get_image_info(issue_doc, img_link)
+    # image_href = "https://beta-3.babel.hathitrust.org/cgi/imgsrv/iiif/#{issue_doc[:ht_namespace]}.#{issue_doc[:ht_barcode]}/#{img_link}/info.json"
+    key = "#{issue_doc[:ht_barcode]}/#{img_link}"
+    issue_doc[:manifest][key]
   end
 
 end
