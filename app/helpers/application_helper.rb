@@ -19,9 +19,10 @@ module ApplicationHelper
   end
 
   def hathitrust_image_src(document, **kw)
+    namespace = document.fetch('ht_namespace')
     barcode = document.fetch('ht_barcode')
 
-    img_link = document.fetch('img_link_t').first
+    img_link = document.fetch('img_link')
 
     region = kw.fetch(:region, 'full')
     size = kw.fetch(:size, 'full')
@@ -29,7 +30,7 @@ module ApplicationHelper
     quality = kw.fetch(:quality, 'default')
     format = kw.fetch(:format, 'jpg')
 
-    "#{Rails.configuration.iiif_service}#{barcode}/#{img_link}/#{region}/#{size}/#{rotation}/#{quality}.#{format}"
+    "#{Rails.configuration.iiif_service}#{namespace}.#{barcode}/#{img_link}/#{region}/#{size}/#{rotation}/#{quality}.#{format}"
   end
 
   def hathitrust_thumbnail_src(document, **kw)
@@ -61,6 +62,17 @@ module ApplicationHelper
       @document["full_text_txt"].first.gsub! search_field,highlighted_field 
     end
     return @document["full_text_txt"].first 
+  end
+
+  def render_plain_text(document, field)
+    retval = []
+    texts = document.has_highlight_field?(field) ? document.highlight_field(field) : document.fetch(field)
+    Array(texts).each do |text|
+      retval << '<p>'
+      retval << text.gsub("\n", "\n<br />")
+      retval << '</p>'
+    end
+    retval.join("\n").html_safe
   end
 
   require 'ffaker'
