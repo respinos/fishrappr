@@ -32,6 +32,7 @@
       <script type="text/javascript">
           $().ready(function() {
               // alert("AHOY");
+              window.F = window.F || {};
               var $map = $("#map");
               $map.height($(window).height() - 100);
 
@@ -44,14 +45,32 @@
                 crs: L.CRS.Simple,
                 zoom: 0
               });
+              F.map = map;
               var baseLayer;
               var page;
               var annoFeatures = new L.FeatureGroup();
+
+              var imageHeight; var imageWidth;
               //map.addLayer(annoFeatures);
 
               var loadAnnotations = function(e) {
                 var baseLayer = e.target;
                 baseLayer.off('load');
+                //map.setZoom(2.25);
+
+                // // locks the image to the northwest corner; stops panning east, not west
+                // var southWest = map.unproject([0, imageHeight], map.getMaxZoom() - 1);
+                // var northEast = map.unproject([imageWidth, 0], map.getMaxZoom() - 1);
+                // var bounds = new L.LatLngBounds(southWest, northEast);
+                // map.setMaxBounds(bounds);
+
+                // console.log("THE ZOOM", map.getMaxZoom());
+                // // locks the image to the southeast corner; stops panning west, not east
+                // var southWest = map.unproject([- ( imageWidth / 2 ), ( imageHeight / 2 )], map.getMaxZoom() - 1);
+                // var northEast = map.unproject([ imageWidth / 2, - ( imageHeight / 2 )], map.getMaxZoom() - 1);
+                // var bounds = new L.LatLngBounds(southWest, northEast);
+                // map.setMaxBounds(bounds);
+
 
                 // just in case, don't do anything if there are no words
                 if ( words.length == 0 ) {
@@ -91,8 +110,25 @@
                   page.images[0].resource.service['@id'] + '/info.json'
                 );
 
+                imageHeight = data.sequences[0].canvases[0].height;
+                imageWidth = data.sequences[0].canvases[0].width;
 
-                if ( words.length > 0 ) {
+                console.log(imageWidth, "x", imageHeight);
+
+                // // locks the image to the southeast corner; stops panning west, not east
+                // var southWest = map.unproject([- ( imageWidth * 1.5 / 2 ), ( imageHeight * 1.5 / 2 )], 6 - 1);
+                // var northEast = map.unproject([ imageWidth * 1.5 / 2, - ( imageHeight * 1.5 / 2 )], 6 - 1);
+                // var bounds = new L.LatLngBounds(southWest, northEast);
+                // map.setMaxBounds(bounds);
+
+                // locks the image to the southeast corner; stops panning west, not east
+                // var southWest = map.unproject([0, imageHeight], 6 - 1);
+                // var northEast = map.unproject([imageWidth, 0], 6 - 1);
+                // var bounds = new L.LatLngBounds(southWest, northEast);
+                // map.setMaxBounds(bounds);
+
+
+                if ( true || words.length > 0 ) {
                   console.log("LOADING ANNOTATIONS");
                   baseLayer.on('load', loadAnnotations);
                 }
