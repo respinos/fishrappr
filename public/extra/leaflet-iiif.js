@@ -108,13 +108,26 @@ L.TileLayer.Iiif = L.TileLayer.extend({
     // Find best zoom level and center map
     var idx = 0;
     var initialZoom = _this._getInitialZoom(_this._map.getSize());
-    var imageSize = _this._imageSizes[initialZoom[0]];
-    var sw = _this._map.options.crs.pointToLatLng(L.point(0, imageSize.y), initialZoom[0]);
-    var ne = _this._map.options.crs.pointToLatLng(L.point(imageSize.x, 0), initialZoom[0]);
+    // var imageSize = _this._imageSizes[initialZoom[0]];
+    // var sw = _this._map.options.crs.pointToLatLng(L.point(0, imageSize.y), initialZoom[0]);
+    // var ne = _this._map.options.crs.pointToLatLng(L.point(imageSize.x, 0), initialZoom[0]);
+
+    var scale = Math.pow(2, _this.maxNativeZoom - initialZoom[1]);
+    var height = _this.y / scale;
+    var width = _this.x / scale;
+
+    var sw = _this._map.options.crs.pointToLatLng(L.point(0, height), initialZoom[1]);
+    var ne = _this._map.options.crs.pointToLatLng(L.point(width, 0), initialZoom[1]);
 
     var bounds = L.latLngBounds(sw, ne);
+    var zoom = initialZoom[1];
+    _this._map.options.minZoom = zoom;
 
     _this._map.fitBounds(bounds);
+    // var swPoint = _this._map.project(bounds.getSouthWest(), zoom),
+    //         nePoint = _this._map.project(bounds.getNorthEast(), zoom),
+    //         center = _this._map.unproject(swPoint.add(nePoint).divideBy(2), zoom);
+    // _this._map.setView(center, zoom, {});
     _this._map.setMaxBounds(bounds);
 
   },
