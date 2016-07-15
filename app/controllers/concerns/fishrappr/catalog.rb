@@ -9,6 +9,7 @@ module Fishrappr::Catalog
     helper_method :process_highlighted_words
     helper_method :highlights_available?
     helper_method :highlights_visible?
+    helper_method :container_classes
   end
 
   def search_results(user_params)
@@ -54,6 +55,7 @@ module Fishrappr::Catalog
   def show
     search_params = current_search_session.try(:query_params)
     search_field = search_params ? search_params["q"] : nil
+    @raw_layout = true
     if params[:id] and search_field
       @response, @document = fetch_with_highlights params[:id], search_field
       # still fighting with blacklight to build the right kind of query
@@ -243,6 +245,10 @@ module Fishrappr::Catalog
       ! ( session[:show_highlight] == false )
     end
 
+    def container_classes
+      @container_fluid ? 'container-fluid' : 'container'
+    end
+
     def get_issue_data
       # need to find all the issues for this issue
       ht_namespace = @document.fetch('ht_namespace')
@@ -278,6 +284,16 @@ module Fishrappr::Catalog
         data << text_link.gsub(/[^\d]+/, '').to_i
       end
       { id: "#{ht_namespace}.#{ht_barcode}", seq: data }
+    end
+
+    def resolve_layout
+      STDERR.puts "AHOY #{action_name}"
+      case action_name
+      when "show"
+        "pageview"
+      else
+        "blacklight"
+      end
     end
 
      
