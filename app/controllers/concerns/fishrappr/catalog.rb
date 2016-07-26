@@ -113,6 +113,39 @@ module Fishrappr::Catalog
     render json: data
   end
 
+
+def browse
+  # build fq Array
+  fq_arr = []
+
+  # add sequence to fq hash
+  fq_arr << "sequence:1"
+
+  unless (params["date_issued_yyyy10_ti"] != "Any Decade" || params["date_issued_yyyy10_ti"].blank?)
+     fq_arr << "date_issued_yyyy10_ti:#{params['date_issued_yyyy10_ti']}";
+  end
+
+  unless (params["date_issued_yyyy_ti"] != "Any Year" || params["date_issued_yyyy_ti"].blank?)
+    fq_arr << "date_issued_yyyy_ti:#{params['date_issued_yyyy_ti']}";
+  end
+
+  unless (params["date_issued_mm_ti"] != "Any Month" || params["date_issued_mm_ti"].blank?)
+     fq_arr << "date_issued_mm_ti:#{params['date_issued_mm_ti']}";
+  end
+
+  params = {
+    fl: blacklight_config.default_solr_params[:fl] + ",page_abstract",
+    fq: fq_arr,
+    sort: "sequence asc",
+    rows: 20
+  }
+
+  # Need to get multiple documents here -- like index above???
+  #(@response, @document_list) = search_results(params)
+  @response = repository.search(params);
+  @document_list = @response.documents;
+end
+
   # UTILITY
 
   def fetch_in_context(params, search_query)
@@ -285,6 +318,8 @@ module Fishrappr::Catalog
       @container_fluid ? 'container-fluid' : 'container'
     end
 
+    
+
     def get_issue_data(flds=[])
       # need to find all the issues for this issue
       ht_namespace = @document.fetch('ht_namespace')
@@ -312,7 +347,7 @@ module Fishrappr::Catalog
         rows: 500
       }
 
-      solr_response = repository.search(params)
+      solr_response = repository.search(params);
       data = {}
       data[:seq] = [1,2,3]
       data[:id] = "#{ht_namespace}.#{ht_barcode}"

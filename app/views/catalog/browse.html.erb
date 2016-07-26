@@ -7,15 +7,16 @@
   <% decade_browse_options = get_decade_browse_options %>
   <% year_browse_options = get_year_browse_options %>
   <% month_browse_options = get_month_browse_options %>
-  <form role="form" method="get" class="form-inline" action="catalog#browse">
+    <%= form_tag("catalog#browse", role: 'browse', method: :get, class: "form-inline browse-form") do %>
       <div class="browse-select-box">
         <div class="form-group">
-          <%= select_tag(name="browse-decade", options_for_select(decade_browse_options, 1), class: 'changeable form-control') %>
-          <%= select_tag(name="browse-year", options_for_select(year_browse_options, 1), class: 'changeable form-control') %>
-          <%= select_tag(name="browse-month", options_for_select(month_browse_options, 1), class: 'changeable form-control') %>
+          <label class="sr-only">Browse by</label>
+          <%= select_tag(name="date_issued_yyyy10_ti", options_for_select(decade_browse_options, 1), class: 'changeable form-control') %>
+          <%= select_tag(name="date_issued_yyyy_ti", options_for_select(year_browse_options, 1), class: 'changeable form-control') %>
+          <%= select_tag(name="date_issued_mm_ti", options_for_select(month_browse_options, 1), class: 'changeable form-control') %>
         </div>
       </div>
-    </form>
+    <% end %>
 </div>
 
 <div class="col-sm-12">
@@ -23,6 +24,9 @@
     <h3>Any Month Any Year Any Decade</h3>  
       <div id="documents" class="row grid">  
 
+        <%= render 'search_results' %>
+
+      <% if (false) %>
       <% 20.times do %>
         <div data-words="[]" data-identifier="mdp-39015071754159-1969-12-10_1-9">
           <a class="thumbnail" style="min-width: 200px; min-height: 269px" href="/view/mdp-39015071754159-1969-12-10_1-9"><img src="https://beta-3.babel.hathitrust.org/cgi/imgsrv/iiif/mdp.39015071754159/IMG00000825/full/200,/0/default.jpg" /></a>
@@ -40,6 +44,7 @@
           </div>
         </div>
       <% end %>
+    <% end %>
 
   </div>
 </div>
