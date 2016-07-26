@@ -12,28 +12,6 @@ module Fishrappr::Catalog
     helper_method :container_classes
   end
 
-  # def search_results(user_params)
-    
-  #   start_len=end_len = 0
-
-  #   start_len = user_params["range_start"].length if user_params["range_start"]
-  #   end_len = user_params["range_end"].length if user_params["range_end"]    
-    
-  #   if start_len==4 || end_len==4
-  #     user_params["range"] = {"date_issued_yyyy_ti"=>{"begin"=>"", "end"=>""}} 
-  #     user_params["range"]["date_issued_yyyy_ti"]["begin"] = user_params["range_start"] 
-  #     user_params["range"]["date_issued_yyyy_ti"]["end"] = user_params["range_end"] 
-  #   elsif start_len>=8 || end_len >=8
-  #     user_params["range_start"]= user_params["range_start"]
-  #     user_params["range"] = {"date_issued_yyyymmdd_ti"=>{"begin"=>"", "end"=>""}} 
-  #     user_params["range"]["date_issued_yyyymmdd_ti"]["begin"] = user_params["range_start"] 
-  #     user_params["range_end"]= user_params["range_end"]
-  #     user_params["range"]["date_issued_yyyymmdd_ti"]["end"] = user_params["range_end"] 
-  #   end
-
-  #   super
-  # end  
-
   def search_results(user_params)
     if user_params["date_filter"] and user_params["date_filter"] != 'any'
       user_params["date_filter_options"] = get_date_params(user_params)
@@ -114,37 +92,39 @@ module Fishrappr::Catalog
   end
 
 
-def browse
-  # build fq Array
-  fq_arr = []
+  def browse
+    # build fq Array
+    fq_arr = []
 
-  # add sequence to fq hash
-  fq_arr << "sequence:1"
+    # add sequence to fq hash
+    fq_arr << "sequence:1"
 
-  unless (params["date_issued_yyyy10_ti"] != "Any Decade" || params["date_issued_yyyy10_ti"].blank?)
-     fq_arr << "date_issued_yyyy10_ti:#{params['date_issued_yyyy10_ti']}";
+    unless (params["date_issued_yyyy10_ti"] != "Any Decade" || params["date_issued_yyyy10_ti"].blank?)
+       fq_arr << "date_issued_yyyy10_ti:#{params['date_issued_yyyy10_ti']}";
+    end
+
+    unless (params["date_issued_yyyy_ti"] != "Any Year" || params["date_issued_yyyy_ti"].blank?)
+      fq_arr << "date_issued_yyyy_ti:#{params['date_issued_yyyy_ti']}";
+    end
+
+    unless (params["date_issued_mm_ti"] != "Any Month" || params["date_issued_mm_ti"].blank?)
+       fq_arr << "date_issued_mm_ti:#{params['date_issued_mm_ti']}";
+    end
+
+    params = {
+      fl: blacklight_config.default_solr_params[:fl] + ",date_issued_dt,page_abstract",
+      fq: fq_arr,
+      sort: "date_issued_dt asc, sequence asc",
+      rows: 20
+    }
+
+    # Need to get multiple documents here -- like index above???
+    #(@response, @document_list) = search_results(params)
+    @response = repository.search(params);
+    @document_list = @response.documents;
+
+
   end
-
-  unless (params["date_issued_yyyy_ti"] != "Any Year" || params["date_issued_yyyy_ti"].blank?)
-    fq_arr << "date_issued_yyyy_ti:#{params['date_issued_yyyy_ti']}";
-  end
-
-  unless (params["date_issued_mm_ti"] != "Any Month" || params["date_issued_mm_ti"].blank?)
-     fq_arr << "date_issued_mm_ti:#{params['date_issued_mm_ti']}";
-  end
-
-  params = {
-    fl: blacklight_config.default_solr_params[:fl] + ",page_abstract",
-    fq: fq_arr,
-    sort: "sequence asc",
-    rows: 20
-  }
-
-  # Need to get multiple documents here -- like index above???
-  #(@response, @document_list) = search_results(params)
-  @response = repository.search(params);
-  @document_list = @response.documents;
-end
 
   # UTILITY
 
@@ -324,20 +304,6 @@ end
       # need to find all the issues for this issue
       ht_namespace = @document.fetch('ht_namespace')
       ht_barcode = @document.fetch('ht_barcode')
-
-      # # what does builder do?
-      # builder = SearchBuilder.new(self).with({ 
-      #         :search_field => "advanced",
-      #         :op => 'AND',
-      #         :ht_namespace => ht_namespace,
-      #         :ht_barcode => ht_barcode,
-      #         :issue_seqence => @document.fetch('issue_sequence'),
-      #         :date_issued_link => @document.fetch('date_issued_link'),
-      #         :"controller" => "catalog",
-      #         :"action" => "index",
-      #         :fq => @document.fetch('publication_link')
-      #       })
-      # builder.rows(0)
 
       fl = [ 'id', 'sequence', 'text_link', 'img_link', flds].flatten.compact
       params = {
