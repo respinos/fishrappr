@@ -111,12 +111,9 @@ module Fishrappr::Catalog
        fq_arr << "date_issued_mm_ti:#{params['date_issued_mm_ti']}";
     end
 
-    params = {
-      fl: blacklight_config.default_solr_params[:fl] + ",date_issued_dt,page_abstract",
-      fq: fq_arr,
-      sort: "date_issued_dt asc, sequence asc",
-      rows: 20
-    }
+    params = blacklight_config.default_solr_params.dup
+    params[:fl] += ",date_issued_dt,page_abstract"
+    params[:sort] = "date_issued_dt asc, sequence asc",
 
     # Need to get multiple documents here -- like index above???
     #(@response, @document_list) = search_results(params)
